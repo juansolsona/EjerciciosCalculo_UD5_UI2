@@ -16,7 +16,7 @@
 \usetikzlibrary{positioning}
 \usetikzlibrary{positioning}
 \usetikzlibrary{babel}
-\geometry{margin=1cm}
+\geometry{margin=1cm, includeheadfoot}
 
 % Estilo de los ejercicios con salto de línea
 \newtheoremstyle{break}
@@ -288,9 +288,7 @@ Este ejercicio está compuesto por los siguientes apartados:
 
 \subsection*{2.1 Normalizar los datos}
 
-Para normalizar los datos, es fácil hacer una sencilla aplicación en Python.
-
-\inputminted[frame=lines, frame=single, fontsize=\small, linenos]{python}{python/normalizar.py}
+Para normalizar los datos, es fácil hacer una sencilla aplicación en Python. El codigo esta disponible en el Anexo 1
 
 El algoritmo realmente no necesita mucha explicacion, el codigo implementa una inicializacion para la tabla de datos, y funciones para localizar el maximo valor de una columna, el minimo y con esos valores y un iterador, normaliza los valores de las columnas aplicando:
 
@@ -1447,7 +1445,7 @@ de una capa oculta con activación sigmoide.
 \subsubsection*{3.2 Tabla detallada para cada lote $t$ de las constantes antes y después de utilizar el lote, así como los gradientes, para los 10 primeros lotes}
 
 Realizar este ejercicio en Microsoft Excel haria una tabla realmente compilicada de definir, asi que, he optado por una solicion programatica, en Python, sin usar ninguna libreria especifica para redes neuronales. 
-El codigo completo se puede revisar en el anexo 2.
+El codigo completo se puede revisar en el Anexo 2.
 
 
 
@@ -1500,13 +1498,32 @@ Lote & $x_1$ & $x_2$ & $\hat y$ & Predicción \\
 \caption{Predicciones de la red para los lotes de test.}
 \end{table}
 
-
-
-
-
-
-
 \end{exercise}
+
+\clearpage
+\appendix
+
+\section*{Anexo 1: Código de normalización de datos}
+% (opcional) Si quieres que salga en el índice:
+% \addcontentsline{toc}{section}{Anexo 1: Código de normalización de datos}
+
+\noindent
+En este anexo se incluye el código Python utilizado en la Sección 2.1
+para normalizar los datos de edad e ingresos.
+
+\inputminted[frame=lines, frame=single, fontsize=\small, linenos]{python}{python/normalizar.py}
+
+\section*{Anexo 2: Código de la red neuronal con capa oculta}
+% \addcontentsline{toc}{section}{Anexo 2: Código de la red neuronal con capa oculta}
+
+\noindent
+En este anexo se muestra el código Python completo que implementa el modelo
+de red neuronal descrito en la Sección 3.2, incluyendo el cálculo de la tabla
+de evolución de los pesos y las predicciones finales.
+
+\inputminted[frame=lines, frame=single, fontsize=\small, linenos]{python}{python/ejercicio_5_3.py}
+
+\end{document}
 
 
 \end{document}
