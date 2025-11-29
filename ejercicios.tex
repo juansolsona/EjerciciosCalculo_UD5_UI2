@@ -1,14 +1,35 @@
+% !TeX program = xelatex
+%!TEX TS-program = xelatex
+
 \documentclass[a4paper,11pt]{article}
 
+\usepackage{fontspec}
+\setmainfont{Verdana}
+
 \usepackage[spanish]{babel}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-
+\usepackage{float}
+\usepackage{minted}   
+\usepackage{graphicx}
 \usepackage{amsmath, amssymb, amsthm}
-\newtheorem{exercise}{Ejercicio}
-
 \usepackage{geometry}
-\geometry{margin=2.5cm}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{positioning}
+\usetikzlibrary{babel}
+\geometry{margin=1cm}
+
+% Estilo de los ejercicios con salto de línea
+\newtheoremstyle{break}
+  {10pt}{10pt}          
+  {}                    
+  {}                    
+  {\bfseries}           
+  {.}                   
+  {\newline}            
+  {}                    
+
+\theoremstyle{break}
+\newtheorem{exercise}{Ejercicio}
 
 \title{Ejercicios de Cálculo UD5}
 \author{}
@@ -17,8 +38,8 @@
 \begin{document}
 
 \maketitle
-\begin{exercise}[Demostrar las fórmulas utilizadas para el gradiente cuando se usa la función sigmoide (1 punto).]
 
+\begin{exercise}[Demostrar las fórmulas utilizadas para el gradiente cuando se usa la función sigmoide (1 punto).]
 
     
 \[
@@ -211,8 +232,8 @@ e(\hat y) = \frac{1}{2}(\hat y - y)^2
 = \hat y - y
 \]
 
-Ahora podemos aplicar la regla de la cadena:
-Las derivadas que nos quedan son:
+\textbf{Ahora podemos aplicar la regla de la cadena, y las derivadas que nos quedan son:}
+
 \[
 \frac{\partial z}{\partial w_i}=x_i
 \]
@@ -256,5 +277,1236 @@ Por lo tanto:
 \boldsymbol{
 \frac{\partial e}{\partial b}=(\hat y - y)\,\hat y(1-\hat y)}\]
 \end{exercise}
+\newpage
+\begin{exercise}[Modelado de los datos usando una única neurona (6 puntos).]
+
+    \[\hat y = \frac{1}{1+e^{-(w_1\cdot x_1 \cdot w_2\cdot x_2+ b)}}
+    \]
+\subsection*{Enunciado}
+
+Este ejercicio está compuesto por los siguientes apartados:
+
+\subsection*{2.1 Normalizar los datos}
+
+Para normalizar los datos, es fácil hacer una sencilla aplicación en Python.
+
+\inputminted[frame=lines, frame=single, fontsize=\small, linenos]{python}{python/normalizar.py}
+
+El algoritmo realmente no necesita mucha explicacion, el codigo implementa una inicializacion para la tabla de datos, y funciones para localizar el maximo valor de una columna, el minimo y con esos valores y un iterador, normaliza los valores de las columnas aplicando:
+
+\[rango = x_{max}- x_{min}\]
+\[x_{norm} = \frac{x-min}{rango}\]
+
+
+Lo cual nos da como resultado:
+
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Lote} & \textbf{Edad Normalizada} & \textbf{Ingresos Normalizados} \\
+\hline
+1  & 0.5263 & 0.8750 \\
+2  & 0.0789 & 0.1875 \\
+3  & 0.8684 & 0.3125 \\
+4  & 0.4211 & 0.8125 \\
+5  & 1.0000 & 0.0625 \\
+6  & 0.2632 & 0.5625 \\
+7  & 0.6842 & 0.6250 \\
+8  & 0.1579 & 0.3750 \\
+9  & 0.7368 & 0.4375 \\
+10 & 0.3421 & 0.6875 \\
+11 & 0.0000 & 0.0000 \\
+12 & 0.4737 & 1.0000 \\
+13 & 0.9474 & 0.1875 \\
+14 & 0.6053 & 0.7500 \\
+\hline
+\end{tabular}
+\caption{Valores normalizados de edad e ingresos.}
+\label{tabla:normalizados}
+\end{table}
+
+\subsection*{2.2 Tabla detallada para cada lote $t$ de las constantes antes y después de utilizar el
+lote, así como los gradientes, para los 10 primeros lotes (2.5 puntos).}
+
+Los resultados estan obtenidos de una tabla excel que estara adjunta a este PDF, la tabla es:
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{Lote} & \textbf{$x_1$} & \textbf{$x_2$} & \textbf{$y$} &
+\textbf{$w_1$} & \textbf{$w_2$} & \textbf{$b$} &
+\textbf{$h$} & \textbf{$\hat y$} &
+\textbf{$\partial e/\partial w_1$} &
+\textbf{$\partial e/\partial w_2$} &
+\textbf{$\partial e/\partial b$} \\
+\hline
+
+1  & 0.5263 & 0.8750 & 1 & 0.5000 & 0.5000 & 0.5000 & 0.6332 &        & 0         & 0         & 0 \\
+2  & 0.0789 & 0.1875 & 0 & 0.4988 & 0.4972 & 0.4852 & 0.6332 & 0.6532 & 0.01168   & 0.02774   & 0.14797 \\
+3  & 0.8684 & 0.3125 & 0 & 0.4865 & 0.4928 & 0.4711 & 1.0738 & 0.7453 & 0.12286   & 0.04421   & 0.14148 \\
+4  & 0.4211 & 0.8125 & 1 & 0.4886 & 0.4967 & 0.4759 & 1.0763 & 0.7458 & -0.02029  & -0.03916  & -0.04819 \\
+5  & 1.0000 & 0.0625 & 0 & 0.4742 & 0.4958 & 0.4615 & 0.9955 & 0.7302 & 0.14386   & 0.00899   & 0.14386 \\
+6  & 0.2632 & 0.5625 & 1 & 0.4758 & 0.4993 & 0.4677 & 0.8652 & 0.7037 & -0.01625  & -0.03474  & -0.06177 \\
+7  & 0.6842 & 0.6250 & 1 & 0.4790 & 0.5022 & 0.4723 & 1.1053 & 0.7512 & -0.03181  & -0.02905  & -0.04649 \\
+8  & 0.1579 & 0.3750 & 0 & 0.4767 & 0.4966 & 0.4575 & 0.7363 & 0.6762 & 0.02338   & 0.05552   & 0.14806 \\
+9  & 0.7368 & 0.4375 & 0 & 0.4661 & 0.4904 & 0.4432 & 1.0260 & 0.7361 & 0.10536   & 0.06256   & 0.14299 \\
+10 & 0.3421 & 0.6875 & 1 & 0.4681 & 0.4943 & 0.4489 & 0.9398 & 0.7191 & -0.01942  & -0.03902  & -0.05675 \\
+11 & 0.0000 & 0.0000 & 0 & 0.4681 & 0.4943 & 0.4344 & 0.4489 & 0.6104 & 0         & 0         & 0.14516 \\
+12 & 0.4737 & 1.0000 & 1 & 0.4701 & 0.4987 & 0.4388 & 1.1504 & 0.7596 & -0.02080  & -0.04391  & -0.04391 \\
+13 & 0.9474 & 0.1875 & 0 & 0.4565 & 0.4960 & 0.4243 & 0.9777 & 0.7266 & 0.13674   & 0.02706   & 0.14434 \\
+14 & 0.6053 & 0.7500 & 1 & 0.4594 & 0.4996 & 0.4292 & 1.0726 & 0.7451 & -0.02930  & -0.03631  & -0.04842 \\
+\hline
+
+\end{tabular}
+}
+\caption{Evolución de los parámetros y gradientes de la neurona en cada lote.}
+\end{table}
+\subsection*{2.3 Predicción para los lotes 11 a 14 (1 punto).}
+
+Una vez que disponemos de la tabla completa, podemos calcular las predicciones para los elementos reales.
+
+Tomamos los valores finales tras el entrenamiento (lote 10):
+\[
+w_1 = 0.4681, \qquad w_2 = 0.4943, \qquad b = 0.4489.
+\]
+
+A partir de este punto, esos valores quedan fijas, ya que no se pide continuar el entrenamiento.
+
+
+\vspace{0.4cm}
+\subsection*{2.3.1 Lote 11}
+
+Para el lote 11 conocemos:
+\[
+x_1(11) = 0.0000, \qquad x_2(11) = 0.0000.
+\]
+
+Calculamos:
+\[
+h(11) = w_1\,x_1(11) + w_2\,x_2(11) + b
+       = 0 + 0 + 0.4489 = 0.4489.
+\]
+
+\vspace{0.4cm}
+
+Aplicamos la función sigmoide:
+\[
+\hat y(11) = \sigma(h(11))
+           = \frac{1}{1 + e^{-0.4489}}
+           \approx 0.6103.
+\]
+
+Para obtener la predicción binaria usamos el criterio habitual:
+\[
+\text{Predicción}(t) =
+\begin{cases}
+0, & \text{si } \hat y(t) < 0.5,\\[4pt]
+1, & \text{si } \hat y(t) \ge 0.5.
+\end{cases}
+\]
+
+Dado que $\hat y(11) = 0.6103 \ge 0.5$, la predicción para el lote 11 es:
+\[
+\text{Predicción}(11) = 1.
+\]
+
+Ahora solo tenemos que repetir para el resto de los lotes:
+
+\subsection*{2.3.2 Lote 12}
+
+Para el lote 12 conocemos:
+\[
+x_1(12) = 0.4737, \qquad x_2(12) = 1.0000.
+\]
+
+Con los pesos finales tras el entrenamiento (lote 10):
+\[
+w_1 = 0.4681, \qquad w_2 = 0.4943, \qquad b = 0.4489.
+\]
+
+Calculamos:
+\[
+h(12) = w_1\,x_1(12) + w_2\,x_2(12) + b
+       = 0.4681\cdot 0.4737 + 0.4943\cdot 1.0000 + 0.4489
+       \approx 1.1504.
+\]
+
+\vspace{0.4cm}
+
+Aplicamos la función sigmoide:
+\[
+\hat y(12) = \sigma\big(h(12)\big)
+           = \frac{1}{1 + e^{-1.1504}}
+           \approx 0.7596.
+\]
+
+Para obtener la predicción binaria usamos el criterio habitual:
+\[
+\text{Predicción}(t) =
+\begin{cases}
+0, & \text{si } \hat y(t) < 0.5,\\[4pt]
+1, & \text{si } \hat y(t) \ge 0.5.
+\end{cases}
+\]
+
+Dado que $\hat y(12) = 0.7596 \ge 0.5$, la predicción para el lote 12 es:
+\[
+\text{Predicción}(12) = 1.
+\]
+
+\subsection*{2.3.3 Lote 13}
+
+Para el lote 13 conocemos:
+\[
+x_1(13) = 0.9474, \qquad x_2(13) = 0.1875.
+\]
+
+Con los pesos finales tras el entrenamiento (lote 10):
+\[
+w_1 = 0.4681, \qquad w_2 = 0.4943, \qquad b = 0.4489.
+\]
+
+Calculamos:
+\[
+\begin{aligned}
+h(13) &= w_1\,x_1(13) + w_2\,x_2(13) + b \\
+      &= 0.4681\cdot 0.9474 + 0.4943\cdot 0.1875 + 0.4489 \\
+      &\approx 0.9851.
+\end{aligned}
+\]
+
+\vspace{0.4cm}
+
+Aplicamos la función sigmoide:
+\[
+\hat y(13) = \sigma\big(h(13)\big)
+           = \frac{1}{1 + e^{-0.9851}}
+           \approx 0.7281.
+\]
+
+Para obtener la predicción binaria usamos el criterio habitual:
+\[
+\text{Predicción}(t) =
+\begin{cases}
+0, & \text{si } \hat y(t) < 0.5,\\[4pt]
+1, & \text{si } \hat y(t) \ge 0.5.
+\end{cases}
+\]
+
+Dado que $\hat y(13) = 0.7281 \ge 0.5$, la predicción para el lote 13 es:
+\[
+\text{Predicción}(13) = 1.
+\]
+
+
+\subsection*{2.3.4 Lote 14}
+
+Para el lote 14 conocemos:
+\[
+x_1(14) = 0.6053, \qquad x_2(14) = 0.7500.
+\]
+
+Con los mismos pesos finales tras el entrenamiento:
+\[
+w_1 = 0.4681, \qquad w_2 = 0.4943, \qquad b = 0.4489.
+\]
+
+Calculamos:
+\[
+\begin{aligned}
+h(14) &= w_1\,x_1(14) + w_2\,x_2(14) + b \\
+      &= 0.4681\cdot 0.6053 + 0.4943\cdot 0.7500 + 0.4489 \\
+      &\approx 1.1030.
+\end{aligned}
+\]
+
+\vspace{0.4cm}
+
+Aplicamos la función sigmoide:
+\[
+\hat y(14) = \sigma\big(h(14)\big)
+           = \frac{1}{1 + e^{-1.1030}}
+           \approx 0.7508.
+\]
+
+De nuevo, usando el mismo criterio:
+\[
+\text{Predicción}(t) =
+\begin{cases}
+0, & \text{si } \hat y(t) < 0.5,\\[4pt]
+1, & \text{si } \hat y(t) \ge 0.5.
+\end{cases}
+\]
+
+Como $\hat y(14) = 0.7508 \ge 0.5$, la predicción para el lote 14 es:
+\[
+\text{Predicción}(14) = 1.
+\]
+\subsection*{2.4 Hacer una propuesta de otras funciones de activación que consideréis interesantes
+basándoos en una búsqueda bibliográfica (1 punto)}
+
+Aunque en este ejercicio se ha utilizado la función sigmoide debido a que produce valores en el 
+intervalo $(0,1)$, existen otras funciones de activación ampliamente utilizadas en redes neuronales 
+modernas. La mayoría de estas funciones forman parte de las implementaciones estándar de frameworks 
+como TensorFlow, Keras o PyTorch, que las ofrecen optimizadas y listas para su uso en entornos 
+de aprendizaje profundo. A continuación se describen algunas, junto con orientaciones 
+sobre los casos prácticos en los que suelen emplearse.
+
+\subsubsection*{2.4.1 ReLU (Rectified Linear Unit)}
+\[
+a(z) = \max(0,\, z)
+\]
+Es la función de activación más utilizada en redes profundas. TensorFlow y PyTorch la emplean 
+por defecto en capas densas y convolucionales. Su principal ventaja es que evita la saturación 
+de gradientes cuando $z$ es grande, acelerando el entrenamiento.
+
+\textbf{Usos recomendados:}
+\begin{itemize}
+    \item Redes profundas (CNN, MLP grandes).
+    \item Problemas con datos de alta dimensión (imágenes, audio).
+    \item Capas ocultas donde se busca rapidez de entrenamiento.
+\end{itemize}
+
+\subsubsection*{2.4.2 Leaky ReLU}
+\[
+a(z) = 
+\begin{cases}
+z, & z > 0,\\
+0.01z, & z \le 0.
+\end{cases}
+\]
+Es una variante de ReLU que evita que las neuronas queden “muertas” (cuando sólo devuelven 0).
+Frameworks como TensorFlow incluyen variantes como \texttt{LeakyReLU} y \texttt{ParametricReLU}.
+
+\textbf{Usos recomendados:}
+\begin{itemize}
+    \item Cuando se observa que con ReLU muchas neuronas dejan de actualizarse.
+    \item En problemas de regresión o clasificación donde los datos tienen gran variabilidad.
+\end{itemize}
+
+\subsubsection*{2.4.3 Función tangente hiperbólica (tanh)}
+\[
+a(z) = \tanh(z)
+\]
+Produce valores entre $(-1, 1)$ y es centrada en cero, lo que suele mejorar la convergencia 
+respecto a la sigmoide. TensorFlow la ofrece como \texttt{tf.nn.tanh}.
+
+\textbf{Usos recomendados:}
+\begin{itemize}
+    \item Redes recurrentes (RNN clásicas).
+    \item Modelos donde la salida de las capas ocultas debe estar normalizada.
+    \item Problemas con características negativas y positivas equilibradas.
+\end{itemize}
+
+\subsubsection*{2.4.4 Función Softsign}
+\[
+a(z) = \frac{z}{1 + |z|}
+\]
+Es una alternativa suave a la tangente hiperbólica, con saturación menos brusca.
+
+\textbf{Usos recomendados:}
+\begin{itemize}
+    \item Redes donde tanh produce saturación excesiva.
+    \item Problemas que requieren transiciones más suaves en la activación.
+\end{itemize}
+
+\subsubsection*{2.4.5 Función Softplus}
+\[
+a(z) = \ln\left(1 + e^z\right)
+\]
+Puede considerarse una versión suavizada de ReLU. Es continuamente diferenciable, lo que la hace 
+muy útil en arquitecturas donde se necesita estabilidad numérica. TensorFlow la implementa como 
+\texttt{tf.nn.softplus}.
+
+\textbf{Usos recomendados:}
+\begin{itemize}
+    \item Modelos probabilísticos y variacionales (VAE).
+    \item Redes donde ReLU genera puntos no diferenciables problemáticos.
+\end{itemize}
+
+\bigskip
+
+En este problema concreto —donde se desea obtener una probabilidad en la salida— la función 
+sigmoide sigue siendo la más adecuada. Sin embargo, en redes más complejas (como las descritas 
+en el Ejercicio 3), funciones como ReLU, tanh o Softplus suelen ofrecer un entrenamiento más 
+estable y eficiente, por lo que resultan alternativas interesantes según la arquitectura y la 
+naturaleza de los datos.
+
+\subsection*{2.5 Extensión del modelo con varias neuronas}
+
+En este ejercicio hemos utilizado una única neurona con dos entradas (edad e ingresos) para
+estimar la probabilidad de compra. Este modelo sólo puede generar una frontera de decisión
+lineal en el plano $(x_1, x_2)$, lo que limita su capacidad para separar correctamente los
+distintos tipos de clientes.
+
+Una extensión natural consiste en utilizar una \emph{capa oculta} con varias neuronas. Cada neurona
+oculta actúa como un \emph{detector de patrón} en el espacio de entrada, y la neurona de salida
+combina estas activaciones para producir la probabilidad final de compra.
+
+\subsubsection*{2.5.1 Capa oculta con tres neuronas}
+
+Si mantenemos dos entradas (edad normalizada $x_1$ e ingresos normalizados $x_2$) y añadimos
+una capa oculta con tres neuronas, el modelo puede escribirse como:
+
+\[
+h_j = w_{1j}\,x_1 + w_{2j}\,x_2 + b_j, 
+\qquad
+a_j = \sigma(h_j),
+\qquad j = 1,2,3,
+\]
+
+donde:
+\begin{itemize}
+  \item $w_{1j}$ y $w_{2j}$ son los pesos que conectan las entradas con la neurona oculta $j$,
+  \item $b_j$ es el sesgo de la neurona oculta $j$,
+  \item $a_j$ es la activación de la neurona oculta $j$.
+\end{itemize}
+
+La neurona de salida combina las activaciones de la capa oculta:
+
+\[
+z_{\text{out}} = v_1 a_1 + v_2 a_2 + v_3 a_3 + b_{\text{out}},
+\qquad
+\hat y = \sigma(z_{\text{out}}),
+\]
+
+donde $v_1, v_2, v_3$ son los pesos de la capa de salida y $b_{\text{out}}$ es su sesgo.
+
+\subsubsection*{2.5.2 Interpretación de las neuronas ocultas}
+
+Cada neurona de la capa oculta puede interpretarse como una “región” o “perfil de cliente”
+en el plano edad–ingresos:
+
+\begin{itemize}
+  \item Una neurona puede especializarse en detectar \textbf{ingresos altos}
+  (peso $w_{2j}$ grande y $w_{1j}$ pequeño).
+  \item Otra neurona puede detectar \textbf{edad media o alta}
+  (peso $w_{1j}$ grande y $w_{2j}$ pequeño).
+  \item Una tercera neurona puede activarse sólo cuando ambos valores son altos
+  (pesos $w_{1j}$ y $w_{2j}$ positivos y un sesgo $b_j$ más elevado).
+\end{itemize}
+
+La neurona de salida aprende a combinar estas activaciones: por ejemplo, asignando una mayor
+probabilidad de compra cuando se activa la neurona que representa el perfil de clientes con
+edad e ingresos altos. De este modo, la red deja de utilizar una única recta para separar las
+clases y pasa a aproximar fronteras de decisión más complejas, lo que mejora la capacidad de
+modelar diferentes tipos de clientes.
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    neuron/.style={circle, draw, minimum size=12mm},
+    xshift=0cm, yshift=0cm
+]
+
+% Nodos de entrada
+\node[neuron] (x1) {$x_1$};
+\node[neuron, below=1.2cm of x1] (x2) {$x_2$};
+
+% Capa oculta
+\node[neuron, right=2.5cm of x1] (h1) {$a_1$};
+\node[neuron, right=2.5cm of x2] (h2) {$a_2$};
+\node[neuron, below=1.2cm of h2] (h3) {$a_3$};
+
+% Salida
+\node[neuron, right=3cm of h2] (yhat) {$\hat y$};
+
+% Conexiones entrada -> oculta
+\draw[->] (x1) -- (h1);
+\draw[->] (x1) -- (h2);
+\draw[->] (x1) -- (h3);
+
+\draw[->] (x2) -- (h1);
+\draw[->] (x2) -- (h2);
+\draw[->] (x2) -- (h3);
+
+% Conexiones oculta -> salida
+\draw[->] (h1) -- (yhat);
+\draw[->] (h2) -- (yhat);
+\draw[->] (h3) -- (yhat);
+
+\end{tikzpicture}
+\caption{Ejemplo de red neuronal con una capa oculta de tres neuronas.}
+\end{figure}
+
+\section*{3 Modelado de datos usando varias neuronas}
+\subsubsection*{3.1 Calcular las fórmulas que faltan del gradiente, comprobando 
+$\frac{\partial e}{\partial w_{11}}$ y calculando 
+$\frac{\partial e}{\partial w_{12}}$, 
+$\frac{\partial e}{\partial w_{b1}}$, 
+$\frac{\partial e}{\partial w_{21}}$, 
+$\frac{\partial e}{\partial w_{22}}$ y
+$\frac{\partial e}{\partial b_{2}}$
+}
+\subsubsection*{3.1.1 Comprobar $\frac{\partial e}{\partial w_{11}}$}
+
+En este apartado queremos demostrar la expresión analítica del gradiente
+respecto del peso $w_{11}$, que conecta la primera entrada $x_1$
+con la primera neurona oculta de la red.
+
+Recordamos que esta neurona oculta tiene:
+
+\[
+h_1 = w_{11}x_1 + w_{12}x_2 + b_1,
+\]
+
+y su salida es:
+
+\[
+z_1 = \sigma(h_1) = \frac{1}{1 + e^{-h_1}}.
+\]
+
+La neurona de salida combina las salidas de las tres neuronas ocultas:
+
+\[
+h_{\text{out}} = v_1 z_1 + v_2 z_2 + v_3 z_3 + b_{\text{out}},
+\qquad
+\hat y = \sigma(h_{\text{out}}).
+\]
+
+El error utilizado es:
+
+\[
+e = \frac{1}{2}(\hat y - y)^2.
+\]
+
+\bigskip
+
+\subsubsection*{Aplicación de la regla de la cadena}
+
+Como $w_{11}$ afecta primero a $h_1$, luego a $z_1$, luego a $h_{\text{out}}$,
+y finalmente al error, aplicamos la regla de la cadena a lo largo de todo este recorrido:
+
+\[
+\frac{\partial e}{\partial w_{11}}
+=
+\frac{\partial e}{\partial \hat y}
+\cdot
+\frac{\partial \hat y}{\partial h_{\text{out}}}
+\cdot
+\frac{\partial h_{\text{out}}}{\partial z_1}
+\cdot
+\frac{\partial z_1}{\partial h_1}
+\cdot
+\frac{\partial h_1}{\partial w_{11}}.
+\]
+
+Ahora derivamos cada término individualmente.
+
+\bigskip
+
+\textbf{1. Derivada del error respecto a la predicción}
+
+\[
+\frac{\partial e}{\partial \hat y}
+= \hat y - y.
+\]
+
+\textbf{2. Derivada de la sigmoide}
+
+\[
+\frac{\partial \hat y}{\partial h_{\text{out}}}
+= \hat y(1 - \hat y).
+\]
+
+\textbf{3. Derivada del modelo lineal de la neurona de salida}
+
+\[
+h_{\text{out}} = v_1 z_1 + v_2 z_2 + v_3 z_3 + b_{\text{out}}
+\]
+
+solamente depende de $z_1$ a través del término $v_1 z_1$, por tanto:
+
+\[
+\frac{\partial h_{\text{out}}}{\partial z_1} = v_1.
+\]
+
+\textbf{4. Derivada de la sigmoide de la neurona oculta}
+
+\[
+\frac{\partial z_1}{\partial h_1}
+=
+z_1(1-z_1).
+\]
+
+\textbf{5. Derivada del modelo lineal de la neurona oculta}
+
+\[
+h_1 = w_{11} x_1 + w_{12}x_2 + b_1
+\]
+
+por lo que:
+
+\[
+\frac{\partial h_1}{\partial w_{11}} = x_1.
+\]
+
+\bigskip
+
+\subsubsection*{Resultado final}
+
+Sustituyendo cada derivada:
+
+\[
+\boxed{
+\frac{\partial e}{\partial w_{11}}
+=
+(\hat y - y)\,
+\hat y(1-\hat y)\,
+v_1\,
+z_1(1-z_1)\,
+x_1
+}
+\]
+
+Esta expresión coincide con la forma general del gradiente en redes neuronales
+de dos capas, y confirma la fórmula indicada en el enunciado.
+
+\subsubsection*{3.1.2 Comprobar $\frac{\partial e}{\partial w_{12}}$}
+
+En este apartado queremos demostrar la expresión analítica del gradiente
+respecto del peso $w_{12}$, que conecta la segunda entrada $x_2$
+con la primera neurona oculta de la red.
+
+Para la primera neurona oculta recordamos:
+
+\[
+h_1 = w_{11}x_1 + w_{12}x_2 + b_1,
+\qquad
+z_1 = \sigma(h_1) = \frac{1}{1 + e^{-h_1}}.
+\]
+
+La neurona de salida combina las salidas de las neuronas ocultas:
+
+\[
+h_{\text{out}} = v_1 z_1 + v_2 z_2 + v_3 z_3 + b_{\text{out}},
+\qquad
+\hat y = \sigma(h_{\text{out}}),
+\]
+
+y el error es:
+
+\[
+e = \frac{1}{2}(\hat y - y)^2.
+\]
+
+\bigskip
+
+\subsubsection*{Aplicación de la regla de la cadena}
+
+El peso $w_{12}$ afecta primero a $h_1$, luego a $z_1$, luego a $h_{\text{out}}$
+y finalmente al error. Por la regla de la cadena:
+
+\[
+\frac{\partial e}{\partial w_{12}}
+=
+\frac{\partial e}{\partial \hat y}
+\cdot
+\frac{\partial \hat y}{\partial h_{\text{out}}}
+\cdot
+\frac{\partial h_{\text{out}}}{\partial z_1}
+\cdot
+\frac{\partial z_1}{\partial h_1}
+\cdot
+\frac{\partial h_1}{\partial w_{12}}.
+\]
+
+Derivamos cada término:
+
+\begin{itemize}
+  \item Derivada del error respecto a la predicción:
+  \[
+  \frac{\partial e}{\partial \hat y} = \hat y - y.
+  \]
+
+  \item Derivada de la sigmoide de la neurona de salida:
+  \[
+  \frac{\partial \hat y}{\partial h_{\text{out}}}
+  = \hat y(1-\hat y).
+  \]
+
+  \item Derivada del modelo lineal de la neurona de salida respecto a $z_1$:
+  \[
+  h_{\text{out}} = v_1 z_1 + v_2 z_2 + v_3 z_3 + b_{\text{out}}
+  \;\Rightarrow\;
+  \frac{\partial h_{\text{out}}}{\partial z_1} = v_1.
+  \]
+
+  \item Derivada de la sigmoide de la neurona oculta:
+  \[
+  \frac{\partial z_1}{\partial h_1}
+  = z_1(1-z_1).
+  \]
+
+  \item Derivada del modelo lineal de la neurona oculta respecto a $w_{12}$:
+  \[
+  h_1 = w_{11}x_1 + w_{12}x_2 + b_1
+  \;\Rightarrow\;
+  \frac{\partial h_1}{\partial w_{12}} = x_2.
+  \]
+\end{itemize}
+
+\bigskip
+
+\subsubsection*{Resultado final}
+
+Sustituyendo todas las derivadas en la expresión de la regla de la cadena:
+
+\[
+\boxed{
+\frac{\partial e}{\partial w_{12}}
+=
+(\hat y - y)\,
+\hat y(1-\hat y)\,
+v_1\,
+z_1(1-z_1)\,
+x_2
+}
+\]
+
+que es completamente análoga a la derivada respecto a $w_{11}$,
+simplemente cambiando la entrada $x_1$ por $x_2$.
+
+\subsubsection*{3.1.3 Comprobar $\frac{\partial e}{\partial w_{21}}$}
+
+Ahora estudiamos el gradiente respecto del peso $w_{21}$,
+que conecta la primera entrada $x_1$ con la \emph{segunda} neurona oculta.
+
+Para la segunda neurona oculta:
+
+\[
+h_2 = w_{21}x_1 + w_{22}x_2 + b_2,
+\qquad
+z_2 = \sigma(h_2) = \frac{1}{1 + e^{-h_2}}.
+\]
+
+La neurona de salida sigue siendo:
+
+\[
+h_{\text{out}} = v_1 z_1 + v_2 z_2 + v_3 z_3 + b_{\text{out}},
+\qquad
+\hat y = \sigma(h_{\text{out}}),
+\]
+
+y el error:
+
+\[
+e = \frac{1}{2}(\hat y - y)^2.
+\]
+
+\bigskip
+
+\subsubsection*{Aplicación de la regla de la cadena}
+
+El peso $w_{21}$ afecta primero a $h_2$, luego a $z_2$, luego a $h_{\text{out}}$
+y finalmente al error. Por la regla de la cadena:
+
+\[
+\frac{\partial e}{\partial w_{21}}
+=
+\frac{\partial e}{\partial \hat y}
+\cdot
+\frac{\partial \hat y}{\partial h_{\text{out}}}
+\cdot
+\frac{\partial h_{\text{out}}}{\partial z_2}
+\cdot
+\frac{\partial z_2}{\partial h_2}
+\cdot
+\frac{\partial h_2}{\partial w_{21}}.
+\]
+
+Las derivadas son análogas a las de los apartados anteriores:
+
+\begin{itemize}
+  \item Derivada del error:
+  \[
+  \frac{\partial e}{\partial \hat y} = \hat y - y.
+  \]
+
+  \item Derivada de la sigmoide de la neurona de salida:
+  \[
+  \frac{\partial \hat y}{\partial h_{\text{out}}}
+  = \hat y(1-\hat y).
+  \]
+
+  \item Derivada del modelo lineal de la neurona de salida respecto a $z_2$:
+  \[
+  h_{\text{out}} = v_1 z_1 + v_2 z_2 + v_3 z_3 + b_{\text{out}}
+  \;\Rightarrow\;
+  \frac{\partial h_{\text{out}}}{\partial z_2} = v_2.
+  \]
+
+  \item Derivada de la sigmoide de la segunda neurona oculta:
+  \[
+  \frac{\partial z_2}{\partial h_2}
+  = z_2(1-z_2).
+  \]
+
+  \item Derivada del modelo lineal de la segunda neurona oculta respecto a $w_{21}$:
+  \[
+  h_2 = w_{21}x_1 + w_{22}x_2 + b_2
+  \;\Rightarrow\;
+  \frac{\partial h_2}{\partial w_{21}} = x_1.
+  \]
+\end{itemize}
+
+\bigskip
+
+\subsubsection*{Resultado final}
+
+Sustituyendo:
+
+\[
+\boxed{
+\frac{\partial e}{\partial w_{21}}
+=
+(\hat y - y)\,
+\hat y(1-\hat y)\,
+v_2\,
+z_2(1-z_2)\,
+x_1
+}
+\]
+
+que es completamente análoga al caso de $w_{11}$,
+pero ahora la derivada se realiza a través de la segunda neurona oculta
+($z_2$) y del peso de salida $v_2$.
+
+\subsubsection*{3.1.4 Comprobar $\frac{\partial e}{\partial w_{22}}$}
+
+En este apartado queremos calcular el gradiente respecto del peso $w_{22}$,
+que conecta la segunda entrada $x_2$ con la \emph{segunda} neurona oculta.
+
+Recordamos que para esta neurona:
+
+\[
+h_2 = w_{21}x_1 + w_{22}x_2 + b_2,
+\qquad
+z_2 = \sigma(h_2) = \frac{1}{1 + e^{-h_2}}.
+\]
+
+La neurona de salida combina las salidas de las neuronas ocultas:
+
+\[
+h_{\text{out}} = v_1 z_1 + v_2 z_2 + v_3 z_3 + b_{\text{out}},
+\qquad
+\hat y = \sigma(h_{\text{out}}),
+\]
+
+y el error es:
+
+\[
+e = \frac{1}{2}(\hat y - y)^2.
+\]
+
+\bigskip
+
+\subsubsection*{Aplicación de la regla de la cadena}
+
+Dado que $w_{22}$ afecta a $h_2$, luego a $z_2$, después a $h_{\text{out}}$
+y finalmente al error, aplicamos la regla de la cadena:
+
+\[
+\frac{\partial e}{\partial w_{22}}
+=
+\frac{\partial e}{\partial \hat y}
+\cdot
+\frac{\partial \hat y}{\partial h_{\text{out}}}
+\cdot
+\frac{\partial h_{\text{out}}}{\partial z_2}
+\cdot
+\frac{\partial z_2}{\partial h_2}
+\cdot
+\frac{\partial h_2}{\partial w_{22}}.
+\]
+
+A continuación derivamos los términos:
+
+\begin{itemize}
+  \item Error respecto de la predicción:
+  \[
+  \frac{\partial e}{\partial \hat y}
+  = \hat y - y.
+  \]
+
+  \item Derivada de la sigmoide en la neurona de salida:
+  \[
+  \frac{\partial \hat y}{\partial h_{\text{out}}}
+  = \hat y(1-\hat y).
+  \]
+
+  \item Derivada del modelo lineal de la neurona de salida respecto a $z_2$:
+  \[
+  \frac{\partial h_{\text{out}}}{\partial z_2} = v_2.
+  \]
+
+  \item Derivada de la sigmoide en la neurona oculta 2:
+  \[
+  \frac{\partial z_2}{\partial h_2} = z_2(1-z_2).
+  \]
+
+  \item Derivada del modelo lineal de la neurona oculta respecto a $w_{22}$:
+  \[
+  h_2 = w_{21}x_1 + w_{22}x_2 + b_2
+  \;\Rightarrow\;
+  \frac{\partial h_2}{\partial w_{22}} = x_2.
+  \]
+\end{itemize}
+
+\bigskip
+
+\subsubsection*{Resultado final}
+
+Sustituyendo cada derivada en la fórmula de la cadena obtenemos:
+
+\[
+\boxed{
+\frac{\partial e}{\partial w_{22}}
+=
+(\hat y - y)\,
+\hat y(1-\hat y)\,
+v_2\,
+z_2(1-z_2)\,
+x_2
+}
+\]
+
+que es completamente análoga a los casos anteriores, con la entrada $x_2$
+y la derivación a través de la segunda neurona oculta.
+
+\subsubsection*{3.1.5 Comprobar $\frac{\partial e}{\partial w_{31}}$}
+
+En este apartado queremos calcular el gradiente respecto del peso $w_{31}$,
+que conecta la primera entrada $x_1$ con la \emph{tercera} neurona oculta.
+
+Para esta neurona:
+
+\[
+h_3 = w_{31}x_1 + w_{32}x_2 + b_3,
+\qquad
+z_3 = \sigma(h_3) = \frac{1}{1 + e^{-h_3}}.
+\]
+
+La neurona de salida combina las salidas de las tres neuronas ocultas:
+
+\[
+h_{\text{out}} = v_1 z_1 + v_2 z_2 + v_3 z_3 + b_{\text{out}},
+\qquad
+\hat y = \sigma(h_{\text{out}}),
+\]
+
+y el error es:
+
+\[
+e = \frac{1}{2}(\hat y - y)^2.
+\]
+
+\bigskip
+
+\subsubsection*{Aplicación de la regla de la cadena}
+
+El peso $w_{31}$ afecta a $h_3$, luego a $z_3$, después a $h_{\text{out}}$
+y finalmente al error. Por la regla de la cadena:
+
+\[
+\frac{\partial e}{\partial w_{31}}
+=
+\frac{\partial e}{\partial \hat y}
+\cdot
+\frac{\partial \hat y}{\partial h_{\text{out}}}
+\cdot
+\frac{\partial h_{\text{out}}}{\partial z_3}
+\cdot
+\frac{\partial z_3}{\partial h_3}
+\cdot
+\frac{\partial h_3}{\partial w_{31}}.
+\]
+
+Derivamos cada término:
+
+\begin{itemize}
+  \item Derivada del error:
+  \[
+  \frac{\partial e}{\partial \hat y} = \hat y - y.
+  \]
+
+  \item Derivada de la sigmoide en la neurona de salida:
+  \[
+  \frac{\partial \hat y}{\partial h_{\text{out}}}
+  = \hat y(1-\hat y).
+  \]
+
+  \item Derivada del modelo lineal de la neurona de salida respecto a $z_3$:
+  \[
+  \frac{\partial h_{\text{out}}}{\partial z_3} = v_3.
+  \]
+
+  \item Derivada de la sigmoide en la tercera neurona oculta:
+  \[
+  \frac{\partial z_3}{\partial h_3} = z_3(1-z_3).
+  \]
+
+  \item Derivada del modelo lineal de la tercera neurona oculta respecto a $w_{31}$:
+  \[
+  h_3 = w_{31}x_1 + w_{32}x_2 + b_3
+  \;\Rightarrow\;
+  \frac{\partial h_3}{\partial w_{31}} = x_1.
+  \]
+\end{itemize}
+
+\bigskip
+
+\subsubsection*{Resultado final}
+
+Sustituyendo todas las derivadas:
+
+\[
+\boxed{
+\frac{\partial e}{\partial w_{31}}
+=
+(\hat y - y)\,
+\hat y(1-\hat y)\,
+v_3\,
+z_3(1-z_3)\,
+x_1
+}
+\]
+
+que es completamente análoga a las expresiones de $w_{11}$ y $w_{21}$,
+pero a través de la tercera neurona oculta.
+
+\subsubsection*{3.1.6 Comprobar $\frac{\partial e}{\partial w_{32}}$}
+
+Finalmente, calculamos el gradiente respecto del peso $w_{32}$,
+que conecta la segunda entrada $x_2$ con la tercera neurona oculta.
+
+Para la tercera neurona oculta:
+
+\[
+h_3 = w_{31}x_1 + w_{32}x_2 + b_3,
+\qquad
+z_3 = \sigma(h_3) = \frac{1}{1 + e^{-h_3}}.
+\]
+
+La neurona de salida es:
+
+\[
+h_{\text{out}} = v_1 z_1 + v_2 z_2 + v_3 z_3 + b_{\text{out}},
+\qquad
+\hat y = \sigma(h_{\text{out}}),
+\]
+
+y el error:
+
+\[
+e = \frac{1}{2}(\hat y - y)^2.
+\]
+
+\bigskip
+
+\subsubsection*{Aplicación de la regla de la cadena}
+
+El peso $w_{32}$ afecta a $h_3$, luego a $z_3$, después a $h_{\text{out}}$
+y por último al error. Por la regla de la cadena:
+
+\[
+\frac{\partial e}{\partial w_{32}}
+=
+\frac{\partial e}{\partial \hat y}
+\cdot
+\frac{\partial \hat y}{\partial h_{\text{out}}}
+\cdot
+\frac{\partial h_{\text{out}}}{\partial z_3}
+\cdot
+\frac{\partial z_3}{\partial h_3}
+\cdot
+\frac{\partial h_3}{\partial w_{32}}.
+\]
+
+Las derivadas individuales son:
+
+\begin{itemize}
+  \item Derivada del error:
+  \[
+  \frac{\partial e}{\partial \hat y} = \hat y - y.
+  \]
+
+  \item Derivada de la sigmoide en la neurona de salida:
+  \[
+  \frac{\partial \hat y}{\partial h_{\text{out}}}
+  = \hat y(1-\hat y).
+  \]
+
+  \item Derivada del modelo lineal de la neurona de salida respecto a $z_3$:
+  \[
+  \frac{\partial h_{\text{out}}}{\partial z_3} = v_3.
+  \]
+
+  \item Derivada de la sigmoide de la tercera neurona oculta:
+  \[
+  \frac{\partial z_3}{\partial h_3} = z_3(1-z_3).
+  \]
+
+  \item Derivada del modelo lineal de la tercera neurona oculta respecto a $w_{32}$:
+  \[
+  h_3 = w_{31}x_1 + w_{32}x_2 + b_3
+  \;\Rightarrow\;
+  \frac{\partial h_3}{\partial w_{32}} = x_2.
+  \]
+\end{itemize}
+
+\bigskip
+
+\subsubsection*{Resultado final}
+
+Sustituyendo todas las derivadas en la expresión de la regla de la cadena:
+
+\[
+\boxed{
+\frac{\partial e}{\partial w_{32}}
+=
+(\hat y - y)\,
+\hat y(1-\hat y)\,
+v_3\,
+z_3(1-z_3)\,
+x_2
+}
+\]
+
+que completa la familia de derivadas respecto a los pesos de la capa oculta
+en una red con tres neuronas ocultas y una neurona de salida.
+
+\subsubsection*{3.1.7 Resultado general para cualquier peso $w_{ij}$ de la capa oculta}
+
+A partir de los casos particulares anteriores, podemos obtener una expresión
+general del gradiente respecto de cualquier peso $w_{ij}$ de la capa oculta,
+donde:
+
+\begin{itemize}
+    \item $i$ indica la entrada ($x_1$ o $x_2$),
+    \item $j$ indica la neurona oculta ($j = 1,2,3$).
+\end{itemize}
+
+Recordemos que la activación de cada neurona oculta es:
+
+\[
+h_j = w_{1j}x_1 + w_{2j}x_2 + b_j,
+\qquad
+z_j = \sigma(h_j).
+\]
+
+La neurona de salida utiliza:
+
+\[
+h_{\text{out}} = v_1z_1 + v_2z_2 + v_3z_3 + b_{\text{out}},
+\qquad
+\hat y = \sigma(h_{\text{out}}),
+\qquad
+e = \frac{1}{2}(\hat y - y)^2.
+\]
+
+Aplicando la regla de la cadena a lo largo de la ruta:
+
+\[
+w_{ij} \longrightarrow h_j \longrightarrow z_j \longrightarrow h_{\text{out}}
+\longrightarrow \hat y \longrightarrow e,
+\]
+
+obtenemos la expresión general:
+
+\[
+\boxed{
+\frac{\partial e}{\partial w_{ij}}
+=
+(\hat y - y)\,
+\hat y(1 - \hat y)\,
+v_j\,
+z_j(1 - z_j)\,
+x_i
+}
+\]
+
+donde:
+
+\begin{itemize}
+    \item $(\hat y - y)$ proviene de la derivada del error,
+    \item $\hat y(1-\hat y)$ es la derivada de la sigmoide de salida,
+    \item $v_j$ es el peso que conecta la neurona oculta $j$ con la neurona de salida,
+    \item $z_j(1-z_j)$ es la derivada de la sigmoide de la neurona oculta,
+    \item $x_i$ es la entrada correspondiente al peso $w_{ij}$.
+\end{itemize}
+
+Esta fórmula resume todos los casos particulares y constituye
+la regla general para el cálculo de gradientes en una red neuronal
+de una capa oculta con activación sigmoide.
+
+
+\subsubsection*{3.2 Tabla detallada para cada lote $t$ de las constantes antes y después de utilizar el lote, así como los gradientes, para los 10 primeros lotes}
+
+Realizar este ejercicio en Microsoft Excel haria una tabla realmente compilicada de definir, asi que, he optado por una solicion programatica, en Python, sin usar ninguna libreria especifica para redes neuronales. 
+El codigo completo se puede revisar en el anexo 2.
+
+
+
+
+
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|cc|c|ccc|ccc|ccc|cccc|c|}
+\hline
+Lote & $x_1$ & $x_2$ & $y$ & $w_{11}$ & $w_{12}$ & $b_1$ & $w_{21}$ & $w_{22}$ & $b_2$ & $w_{31}$ & $w_{32}$ & $b_3$ & $v_1$ & $v_2$ & $v_3$ & $b$ & $\hat y$ \\
+\hline
+1 & 0.5263 & 0.8750 & 1 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.2053 & 0.2053 & 0.2053 & 0.0721 & 0.6319 \\
+2 & 0.0789 & 0.1875 & 0 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.2053 & 0.2053 & 0.2053 & 0.0721 & 0.6153 \\
+3 & 0.8684 & 0.3125 & 0 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.2053 & 0.2053 & 0.2053 & 0.0721 & 0.6288 \\
+4 & 0.4211 & 0.8125 & 1 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.2053 & 0.2053 & 0.2053 & 0.0721 & 0.6298 \\
+5 & 1.0000 & 0.0625 & 0 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.2053 & 0.2053 & 0.2053 & 0.0721 & 0.6271 \\
+6 & 0.2632 & 0.5625 & 1 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.2053 & 0.2053 & 0.2053 & 0.0721 & 0.6240 \\
+7 & 0.6842 & 0.6250 & 1 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.2053 & 0.2053 & 0.2053 & 0.0721 & 0.6306 \\
+8 & 0.1579 & 0.3750 & 0 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.2053 & 0.2053 & 0.2053 & 0.0721 & 0.6196 \\
+9 & 0.7368 & 0.4375 & 0 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.2053 & 0.2053 & 0.2053 & 0.0721 & 0.6288 \\
+10 & 0.3421 & 0.6875 & 1 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.4809 & 0.4980 & 0.4672 & 0.2053 & 0.2053 & 0.2053 & 0.0721 & 0.6270 \\
+\hline
+\end{tabular}
+}
+\caption{Evolución de la red durante el entrenamiento.}
+\end{table}
+
+
+\subsubsection*{3.3 Prediccion para los lotes 11 a 14}
+
+Al igual que en el ejercicio anterior, la salida es parte del mismo codigo fuente:
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{|c|cc|c|c|}
+\hline
+Lote & $x_1$ & $x_2$ & $\hat y$ & Predicción \\
+\hline
+11 & 0.0000 & 0.0000 & 0.6108 & 1 \\
+12 & 0.4737 & 1.0000 & 0.6329 & 1 \\
+13 & 0.9474 & 0.1875 & 0.6281 & 1 \\
+14 & 0.6053 & 0.7500 & 0.6313 & 1 \\
+\hline
+\end{tabular}
+\caption{Predicciones de la red para los lotes de test.}
+\end{table}
+
+
+
+
+
+
+
+\end{exercise}
+
 
 \end{document}
