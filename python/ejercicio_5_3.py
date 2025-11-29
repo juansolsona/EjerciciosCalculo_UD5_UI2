@@ -1,6 +1,8 @@
 """
  *
  * Copyright (C) 2025 Juan Solsona
+ *                    Josè Luis Salazar
+ *                    Josè David Gòmez
  *
 """
 import math
